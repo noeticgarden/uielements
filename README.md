@@ -31,7 +31,7 @@ let package = Package(
     targets: [
         .target(…
             dependencies: [
-                .product("ExperimentsBoard", package: "experimentsboard")
+                .product("UIElements", package: "uielements")
             ])
     ]
 )
