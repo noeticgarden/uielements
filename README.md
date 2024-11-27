@@ -2,7 +2,7 @@
 
 _A work of Noetic Garden — by [millenomi](https://millenomi.name)._
 
-This package package is meant to contain SwiftUI and RealityKit containers for work on 2D and 3D UIs — things like 3D-aware containers, debug visualizers, or RealityKit integrations of those elements.
+This package is meant to contain SwiftUI and RealityKit containers for work on 2D and 3D UIs — things like 3D-aware containers, debug visualizers, or RealityKit integrations of those elements.
 
 Currently, it hosts the `Envelopment` container — a SwiftUI container that lets you place views on each side of its bounds. It works in 3D in visionOS, and in 2D on all other Apple OSes:
 
