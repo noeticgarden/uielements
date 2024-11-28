@@ -18,12 +18,16 @@ All types in this package support all Apple OSes that have SwiftUI. Currently, i
 
 ## Topics
 
+- <doc:What's-New>
+
 ### Envelopments
 
 - ``Envelopment``
 - ``Envelopment/Placement``
 - ``Envelopment/State``
 - ``EnvelopmentFace``
+- ``Envelopment/Adaptation``
+- ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)``
 
 ### Concentric Placement
 - ``Concentric``

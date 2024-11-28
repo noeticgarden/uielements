@@ -5,22 +5,41 @@ import SwiftUI
 struct _Envelopment2D: View {
     let subviews: (Envelopment.State) -> _EnvelopmentFaces
     let geometry: _GeometryProxy
+    let adaptation: Envelopment.Adaptation
     
-    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _GeometryProxy) {
+    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _GeometryProxy, adaptation: Envelopment.Adaptation) {
         self.subviews = subviews
         self.geometry = geometry
+        self.adaptation = adaptation
     }
     
     var body: some View {
         let state = Envelopment.State(hasDepth: false)
         let subviews = self.subviews(state)
         
-        subviews.views(.back)
-            .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
+        if adaptation == .showsSingleFace(.back) ||
+            adaptation == .simulatesFrontView {
+            subviews.views(.back)
+                .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
+        }
         
-        subviews.views(.front)
-            .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
-            .shims.rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+        if adaptation == .simulatesFrontView {
+            subviews.views(.front)
+                .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
+                .shims.rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+        }
+        
+        if adaptation == .showsSingleFace(.frontOutward) ||
+            adaptation == .simulatesFrontView {
+            subviews.views(.frontOutward)
+                .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
+        }
+        
+        if case .showsSingleFace(let placement) = adaptation,
+           placement != .back && placement != .frontOutward {
+            subviews.views(placement)
+                .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height)
+        }
     }
 }
 
@@ -30,20 +49,42 @@ struct _Envelopment2D: View {
         .foregroundStyle(.blue)
         .border(.red)
     
-    let front =
-    Circle()
-        .foregroundStyle(.mint)
+    let bottom =
+    Rectangle()
+        .aspectRatio(1, contentMode: .fit)
+        .foregroundStyle(.orange)
         .border(.yellow)
+    
+    let front =
+    ZStack {
+        Circle()
+            .foregroundStyle(.mint)
+            .border(.yellow)
+        Text("Hi!")
+            .font(.title)
+            .foregroundStyle(.black)
+    }
+    
+    let frontOutward =
+    ZStack {
+        Circle()
+            .foregroundStyle(.indigo)
+            .border(.yellow)
+        Text("Hi!")
+            .font(.title)
+            .foregroundStyle(.red)
+    }
 
     _GeometryReader { geometry in
         _Envelopment2D(
             subviews: { state in
                 back.envelopmentPlacement(.back)
-                if state.hasDepth {
-                    front.envelopmentPlacement(.front)
-                }
+                front.envelopmentPlacement(.front)
+                bottom.envelopmentPlacement(.bottom)
+                frontOutward.envelopmentPlacement(.frontOutward)
             },
-            geometry: geometry
+            geometry: geometry,
+            adaptation: .simulatesFrontView
         )
     }
 }

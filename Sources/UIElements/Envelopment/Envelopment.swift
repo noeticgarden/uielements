@@ -81,6 +81,8 @@ public struct Envelopment: View {
         case leading
         
         /// This view will be placed on the front face of the envelopment. Its origin will be at the top trailing point of the envelopment's front face, and its X axis will end at the top leading point of that face.
+        ///
+        /// > Important: You should avoid using this placement and having a view placed at the ``front`` placement at the same time, or Z-fighting may occur.
         case front
         
         /// This view will be placed on the leading-side face of the envelopment. Its origin will be at the top trailing point of the envelopment's back face, and its X axis will end at the top trailing point of the front face.
@@ -91,8 +93,16 @@ public struct Envelopment: View {
         
         /// This view will be placed on the bottom face of the envelopment. Its origin will be at the bottom leading point of the envelopment's back face, and its Y axis will end at the bottom leading point of its front face.
         case bottom
+        
+        /// This view will be placed on the front face of the envelopment, facing outward rather than inward. Its origin will be at the top leading point of the envelopment's front face, and its X axis will end at the top trailing point of the front face.
+        ///
+        /// Note that, since this placement faces outward, any content with a positive Z offset may be clipped.
+        ///
+        /// > Important: You should avoid using this placement and having a view placed at the ``front`` placement at the same time, or Z-fighting may occur.
+        case frontOutward
     }
 
+    let intrinsicAdaptation: Envelopment.Adaptation
     
     /// Creates an envelopment with subviews that depend on its state.
     ///
@@ -119,8 +129,11 @@ public struct Envelopment: View {
     ///     }
     /// }
     /// ```
+    ///
+    /// By default, if set to have no depth, the envelopment will adapt to showing only the back face if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(@_EnvelopmentBuilder subviews: @escaping (State) -> _EnvelopmentFaces) {
         self.subviews = subviews
+        self.intrinsicAdaptation = .simulatesFrontView
     }
     
     /// Creates an envelopment with the specified subviews.
@@ -146,8 +159,11 @@ public struct Envelopment: View {
     ///     }
     /// }
     /// ```
+    ///
+    /// By default, if set to have no depth, the envelopment will adapt to showing a simulated isometric view of the front and back faces if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(@_EnvelopmentBuilder subviews: @escaping () -> _EnvelopmentFaces) {
         self.subviews = { _ in subviews() }
+        self.intrinsicAdaptation = .showsSingleFace(.back)
     }
     
 #if os(visionOS)
@@ -156,9 +172,11 @@ public struct Envelopment: View {
     private typealias _Envelopment3DIfAvailable = _Envelopment2D
 #endif
     
+    @Environment(\.envelopmentZeroDepthAdaptation) var adaptation
+    
     public var body: some View {
         _GeometryReader { geometry in
-            _Envelopment3DIfAvailable(subviews: subviews, geometry: geometry)
+            _Envelopment3DIfAvailable(subviews: subviews, geometry: geometry, adaptation: adaptation ?? intrinsicAdaptation)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
 #if os(visionOS)
@@ -217,10 +235,12 @@ private func area(_ color: some ShapeStyle) -> some View {
                 ZStack {
                     area(.green)
                     sticker
-                        .shims.offset(z: state.hasDepth ? 10 : 0)
+                        .shims.offset(z: state.hasDepth ? -10 : 0)
+                    Text("Hi")
+                        .font(.system(size: 280))
+                        .foregroundStyle(.black)
                 }
-                .opacity(state.hasDepth ? 1 : 0)
-                .envelopmentPlacement(.front)
+                .envelopmentPlacement(.frontOutward)
 
                 ZStack {
                     area(.yellow)

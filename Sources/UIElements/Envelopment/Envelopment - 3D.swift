@@ -5,10 +5,12 @@ import SwiftUI
 struct _Envelopment3D: View {
     let subviews: (Envelopment.State) -> _EnvelopmentFaces
     let geometry: _GeometryProxy
+    let adaptation: Envelopment.Adaptation
     
-    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _GeometryProxy) {
+    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _GeometryProxy, adaptation: Envelopment.Adaptation) {
         self.subviews = subviews
         self.geometry = geometry
+        self.adaptation = adaptation
     }
     
     var body: some View {
@@ -18,15 +20,32 @@ struct _Envelopment3D: View {
         
         Group {
             Group {
-                subviews.views(.back)
-                    .frame(maxWidth: size.width, maxHeight: size.height)
-                    .frame(maxDepth: size.depth)
+                if state.hasDepth || adaptation == .showsSingleFace(.back) || adaptation == .simulatesFrontView {
+                    subviews.views(.back)
+                        .frame(maxWidth: size.width, maxHeight: size.height)
+                        .frame(maxDepth: size.depth)
+                }
                 
-                subviews.views(.front)
-                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
-                    .frame(maxWidth: size.width, maxHeight: size.height)
-                    .frame(maxDepth: size.depth)
-                    .offset(z: state.hasDepth ? size.depth : 0)
+                if state.hasDepth || adaptation == .simulatesFrontView {
+                    subviews.views(.front)
+                        .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                        .frame(maxWidth: size.width, maxHeight: size.height)
+                        .frame(maxDepth: size.depth)
+                        .offset(z: state.hasDepth ? size.depth - 1 : 0)
+                }
+                
+                if state.hasDepth || adaptation == .showsSingleFace(.frontOutward) || adaptation == .simulatesFrontView {
+                    subviews.views(.frontOutward)
+                        .frame(maxWidth: size.width, maxHeight: size.height)
+                        .frame(maxDepth: size.depth)
+                        .offset(z: state.hasDepth ? size.depth : 0)
+                }
+                
+                if !state.hasDepth, case .showsSingleFace(let placement) = adaptation, placement != .back && placement != .frontOutward {
+                    subviews.views(placement)
+                        .frame(maxWidth: size.width, maxHeight: size.height)
+                        .frame(maxDepth: size.depth)
+                }
             }
             .frame(maxWidth: size.width, maxHeight: size.height)
             .frame(maxDepth: size.depth)
@@ -93,13 +112,14 @@ private func area(_ color: some ShapeStyle) -> some View {
                         .offset(z: state.hasDepth ? 10 : 0)
                 }
                 .envelopmentPlacement(.back)
-
+                
                 ZStack {
-                    area(.green)
+                    area(.red)
                     sticker
-                        .offset(z: state.hasDepth ? 10 : 0)
+                    Text("Hi!")
+                        .font(.system(size: 125))
                 }
-                .envelopmentPlacement(.front)
+                .envelopmentPlacement(.frontOutward)
 
                 ZStack {
                     area(.yellow)
@@ -133,7 +153,8 @@ private func area(_ color: some ShapeStyle) -> some View {
                 }
                 .envelopmentPlacement(.bottom)
             },
-            geometry: geometry
+            geometry: geometry,
+            adaptation: .simulatesFrontView
         )
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
