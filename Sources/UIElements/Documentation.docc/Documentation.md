@@ -4,7 +4,7 @@ The UIElements package contains additions to SwiftUI that are meant to be genera
 
 ## Overview
 
-This package currently contains the ``Envelopment`` container. It is meant to eventually contain other elements, such as additional 3D-aware containers, debug visualizers, RealityKit integrations, and more.
+This package currently contains the ``Envelopment`` and ``Concentric`` containers. It is meant to eventually contain other elements, such as additional 3D-aware containers, debug visualizers, RealityKit integrations, and more.
 
 All types in this package support all Apple OSes that have SwiftUI. Currently, it requires Fall 2022 Apple OS releases or later, including at least:
 
@@ -24,3 +24,6 @@ All types in this package support all Apple OSes that have SwiftUI. Currently, i
 - ``Envelopment/Placement``
 - ``Envelopment/State``
 - ``EnvelopmentFace``
+
+### Concentric Placement
+- ``Concentric``

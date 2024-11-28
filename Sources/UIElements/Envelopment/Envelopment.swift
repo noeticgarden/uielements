@@ -39,7 +39,7 @@ extension View {
 ///
 /// Envelopments also support being displayed on OSes with 2D displays. In that case, the view supports showing up to 2 subviews, one corresponding to the notional back face and one corresponding to the notional front face, simulating the isometric projection of the front perspective of the 3D version of this view.
 ///
-/// ![A screenshot of an envelopment on macOS, displaying a 'back' view oerlaid by a 'front' view that is flipped around its Y axis.](placements-2d)
+/// ![A screenshot of an envelopment on macOS, displaying a 'back' view overlaid by a 'front' view that is flipped around its Y axis.](placements-2d)
 ///
 /// While this makes the behavior of the envelopment predictable, it also means the user has no way to look around a front face to access a back face. You can use the ``Envelopment/State`` type, its ``Envelopment/State/hasDepth`` property, and the ``init(subviews:)-3fr0w`` constructor to detect this issue, which may also occur on visionOS if the view has a depth of zero, and alter or remove views that should not be shown. For example:
 ///
@@ -73,7 +73,7 @@ public struct Envelopment: View {
     /// Use these values to specify which placement each ``EnvelopmentFace`` should have within the envelopment. Currently, you can place views on an envelopment facing inward, either at the back face of the envelopment (which faces and is oriented toward the user), or on the faces on the front, leading, trailing, top, or bottom sides.
     ///
     /// For more information on placement, see ``Envelopment``.
-    public enum Placement: Hashable, Sendable {
+    public enum Placement: Hashable, Sendable, CaseIterable {
         /// This view will be placed on the back face of the envelopment, with the origin at the envelopment's origin and  its axes aligned to the envelopment's own, facing the user much as a traditional view does.
         case back
         
