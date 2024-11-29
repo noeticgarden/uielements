@@ -192,6 +192,7 @@ private func area(_ color: some ShapeStyle) -> some View {
         .opacity(0.25)
 }
 
+#if compiler(>=6) // Require Xcode 16's SDKs for previews.
 @available(
     iOS 17.0,
     macOS 14.0,
@@ -280,5 +281,6 @@ private func area(_ color: some ShapeStyle) -> some View {
         }
     }
 }
+#endif // compiler(>=6)
 
 #endif

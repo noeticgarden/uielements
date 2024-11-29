@@ -31,3 +31,4 @@ All types in this package support all Apple OSes that have SwiftUI. Currently, i
 
 ### Concentric Placement
 - ``Concentric``
+- ``SwiftUICore/View/surround(_:)``

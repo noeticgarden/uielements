@@ -1,6 +1,7 @@
 
 #if canImport(SwiftUI)
 import SwiftUI
+import Spatial
 
 /// A SwiftUI container that causes its subviews to be placed at its center, regardless of subview sizing.
 ///
@@ -13,6 +14,8 @@ import SwiftUI
 /// The above means that views with equal width, height, and, on visionOS, depth, will occupy the same coordinates relative to the container. It is flexible and will occupy as much space as possible in its container; in turn, it will limit its subviews to the size it occupies.
 ///
 /// Use a concentric container to place content so that their rendering overlaps in space. For example, you could use it to overlay your own controls atop a [`RealityView`](https://developer.apple.com/documentation/realitykit/realityview), or place content between views placed on the faces of an ``Envelopment``.
+///
+/// > Note: This container has an ideal size equal to the size of its subviews. If you need it to fill more space, use the [`frame`](https://developer.apple.com/documentation/swiftui/view/frame(minwidth:idealwidth:maxwidth:minheight:idealheight:maxheight:alignment:)) family of modifiers to set its maximum dimensions to `.infinity`. (This is a change in [v0.2.2](doc:What's-New).)
 ///
 /// ## Backdeployment
 ///
@@ -108,35 +111,60 @@ public struct Concentric: View {
         self.content = .shimmed(ConcentricViews(views: subviews()))
     }
     
-    func placing(_ view: some View, in geometry: _GeometryProxy) -> some View {
+    func placing(_ view: some View, id: AnyHashable, in geometry: _GeometryProxy) -> some View {
         let size = geometry.size
         
         return view
+            .modifier(_SizeExfiltrator { newSize in
+                sizeCatcher.sizes[id] = newSize
+            })
             .frame(maxWidth: size.width, maxHeight: size.height, alignment: .center)
 #if os(visionOS)
             .frame(maxDepth: size.depth, alignment: .center)
 #endif
     }
     
+    @StateObject var sizeCatcher = SizeCatcher()
+    
     public var body: some View {
+        var keys: Set<AnyHashable> = []
+        
         _GeometryReader { geometry in
             switch content {
             case .shimmed(let concentricViews):
+                {
+                    keys = Set(concentricViews.views.map { $0.id })
+                    return EmptyView()
+                }()
+                
                 ForEach(concentricViews.views) { concentricView in
-                    placing(concentricView, in: geometry)
+                    placing(concentricView, id: concentricView.id, in: geometry)
                 }
                 
             case .regular(let anyView):
                 if #available(iOS 18, macOS 15, tvOS 18, watchOS 11, visionOS 2, *) {
                     ForEach(subviews: anyView) { subview in
-                        placing(subview, in: geometry)
+                        {
+                            keys.insert(subview.id)
+                            return EmptyView()
+                        }()
+                        
+                        placing(subview, id: subview.id, in: geometry)
                     }
                 }
             }
+            
+            {
+                Task { @MainActor in
+                    sizeCatcher.keys = keys
+                }
+                return EmptyView()
+            }()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(idealWidth: sizeCatcher.maximumSize?.width ?? .infinity,
+               idealHeight: sizeCatcher.maximumSize?.height ?? .infinity)
 #if os(visionOS)
-        .frame(maxDepth: .infinity)
+        .frame(idealDepth: sizeCatcher.maximumSize?.depth ?? .infinity)
 #endif
     }
 }
@@ -164,88 +192,105 @@ enum _IterableViewBuilder: _ElementsBuilder {
     }
 }
 
-#Preview {
-    Concentric {
-        Envelopment {
-            for placement in Envelopment.Placement.allCases {
-                EnvelopmentFace(placement: placement) {
-                    Rectangle()
-                        .foregroundColor(.blue.opacity(0.15))
-                        .border(.cyan)
+@MainActor
+final class SizeCatcher: ObservableObject {
+    @Published var keys: Set<AnyHashable> = [] {
+        didSet {
+            for key in sizes.keys {
+                if !self.keys.contains(key) {
+                    sizes[key] = nil
                 }
             }
         }
+    }
+    
+    @Published var sizes: [AnyHashable: Size3D] = [:]
+    
+    var maximumSize: Size3D? {
+        guard !sizes.isEmpty else {
+            return nil
+        }
         
-        Concentric {
-            Rectangle()
-                .frame(width: 200, height: 500)
-                .foregroundStyle(.red)
-            
-            Rectangle()
-                .frame(width: 450, height: 300)
-                .foregroundStyle(.blue)
-            
-            Circle()
-                .frame(width: 400, height: 400)
-                .foregroundStyle(.yellow)
-            
-            Envelopment {
-                for placement in Envelopment.Placement.allCases {
-                    EnvelopmentFace(placement: placement) {
-                        Rectangle()
-                            .foregroundColor(.green.opacity(0.15))
-                            .border(.green)
+        let result = sizes.reduce(.zero) { partialResult, next in
+            Size3D(width: max(partialResult.width, next.value.width),
+                   height: max(partialResult.height, next.value.height),
+                   depth: max(partialResult.depth, next.value.depth))
+        }
+        
+        return result
+    }
+}
+
+#if compiler(>=6) // Require Xcode 16's SDKs for previews.
+#Preview {
+    HStack {
+        ForEach(0..<6) { _ in
+            Concentric {
+                Rectangle()
+                    .frame(width: 100, height: 200)
+                    .foregroundStyle(.red)
+                    .fixedSize()
+                
+                Rectangle()
+                    .frame(width: 150, height: 100)
+                    .foregroundStyle(.blue)
+                
+                Circle()
+                    .frame(width: 80, height: 80)
+                    .foregroundStyle(.yellow)
+                
+                Envelopment {
+                    for placement in Envelopment.Placement.allCases {
+                        EnvelopmentFace(placement: placement) {
+                            Rectangle()
+                                .foregroundColor(.green.opacity(0.15))
+                                .border(.green)
+                        }
                     }
                 }
-            }
-            .frame(width: 320, height: 320)
+                .frame(width: 120, height: 120)
 #if os(visionOS)
-            .frame(depth: 320)
+                .frame(depth: 120)
 #endif
+            }
         }
     }
 }
 
 #Preview("Concentric — Shimming subview iteration") {
-    Concentric(erasing: {
-        Envelopment {
-            for placement in Envelopment.Placement.allCases {
-                EnvelopmentFace(placement: placement) {
-                    Rectangle()
-                        .foregroundColor(.blue.opacity(0.15))
-                        .border(.cyan)
-                }
-            }
-        }
-        
-        Concentric {
-            Rectangle()
-                .frame(width: 200, height: 500)
-                .foregroundStyle(.red)
-            
-            Rectangle()
-                .frame(width: 450, height: 300)
-                .foregroundStyle(.blue)
-            
-            Circle()
-                .frame(width: 400, height: 400)
-                .foregroundStyle(.yellow)
-            
-            Envelopment {
-                for placement in Envelopment.Placement.allCases {
-                    EnvelopmentFace(placement: placement) {
-                        Rectangle()
-                            .foregroundColor(.green.opacity(0.15))
-                            .border(.green)
+    HStack {
+        ForEach(0..<6) { _ in
+            Concentric {
+                Rectangle()
+                    .frame(width: 100, height: 200)
+                    .foregroundStyle(.red)
+                    .fixedSize()
+                
+                Rectangle()
+                    .frame(width: 150, height: 100)
+                    .foregroundStyle(.blue)
+                
+                Circle()
+                    .frame(width: 80, height: 80)
+                    .foregroundStyle(.yellow)
+                
+                Envelopment {
+                    for placement in Envelopment.Placement.allCases {
+                        EnvelopmentFace(placement: placement) {
+                            Rectangle()
+                                .foregroundColor(.green.opacity(0.15))
+                                .border(.green)
+                        }
                     }
                 }
-            }
-            .frame(width: 320, height: 320)
+                .frame(width: 120, height: 120)
 #if os(visionOS)
-            .frame(depth: 320)
+                .frame(depth: 120)
 #endif
+            }
         }
-    })
+    }
 }
+#endif // compiler(>=6)
 
 #endif

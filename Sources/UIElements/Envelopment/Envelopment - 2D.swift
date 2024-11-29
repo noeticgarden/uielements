@@ -43,6 +43,7 @@ struct _Envelopment2D: View {
     }
 }
 
+#if compiler(>=6) // Require Xcode 16's SDKs for previews.
 #Preview {
     let back =
     RoundedRectangle(cornerRadius: 15)
@@ -88,5 +89,6 @@ struct _Envelopment2D: View {
         )
     }
 }
+#endif // compiler(>=6)
 
 #endif

@@ -96,6 +96,7 @@ private func area(_ color: some ShapeStyle) -> some View {
         .opacity(0.25)
 }
 
+#if compiler(>=6) // Require Xcode 16's SDKs for previews.
 #Preview {
     let sticker =
     Circle()
@@ -160,5 +161,6 @@ private func area(_ color: some ShapeStyle) -> some View {
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .frame(maxDepth: .infinity)
 }
+#endif // compiler(>=6)
 
 #endif
