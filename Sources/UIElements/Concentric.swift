@@ -51,10 +51,13 @@ import Spatial
 public struct Concentric: View {
     enum Content {
         case shimmed(ConcentricViews)
+#if compiler(>=6)
         case regular(AnyView)
+#endif
     }
     let content: Content
     
+    #if compiler(>=6)
     /// Creates a concentric container that aligns all subviews specified in its view builder.
     ///
     /// Any view that is not a singular container will have its contents expanded and aligned, similar to how a `Form` extracts subviews row by row.
@@ -70,6 +73,7 @@ public struct Concentric: View {
     public init(@ViewBuilder subviews: () -> some View) {
         self.content = .regular(AnyView(subviews()))
     }
+    #endif
     
     /// Creates a concentric container that aligns all subviews specified in the provided closure, erasing their identities.
     ///
@@ -141,6 +145,7 @@ public struct Concentric: View {
                     placing(concentricView, id: concentricView.id, in: geometry)
                 }
                 
+#if compiler(>=6)
             case .regular(let anyView):
                 if #available(iOS 18, macOS 15, tvOS 18, watchOS 11, visionOS 2, *) {
                     ForEach(subviews: anyView) { subview in
@@ -152,6 +157,7 @@ public struct Concentric: View {
                         placing(subview, id: subview.id, in: geometry)
                     }
                 }
+#endif
             }
             
             {

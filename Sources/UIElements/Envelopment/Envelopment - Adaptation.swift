@@ -2,8 +2,15 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
+enum EnvelopmentZeroDepthAdaptationKey: EnvironmentKey {
+    static let defaultValue: Envelopment.Adaptation? = nil
+}
+
 extension EnvironmentValues {
-    @Entry var envelopmentZeroDepthAdaptation: Envelopment.Adaptation?
+    var envelopmentZeroDepthAdaptation: Envelopment.Adaptation? {
+        get { self[EnvelopmentZeroDepthAdaptationKey.self] }
+        set { self[EnvelopmentZeroDepthAdaptationKey.self] = newValue }
+    }
 }
 
 extension View {
