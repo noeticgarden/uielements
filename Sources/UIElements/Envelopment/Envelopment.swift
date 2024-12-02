@@ -130,7 +130,7 @@ public struct Envelopment: View {
     /// }
     /// ```
     ///
-    /// By default, if set to have no depth, the envelopment will adapt to showing only the back face if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
+    /// The envelopment you construct this way will adapt to showing only the back face when its depth is zero. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(@_EnvelopmentBuilder subviews: @escaping (State) -> _EnvelopmentFaces) {
         self.subviews = subviews
         self.intrinsicAdaptation = .simulatesFrontView
@@ -160,7 +160,7 @@ public struct Envelopment: View {
     /// }
     /// ```
     ///
-    /// By default, if set to have no depth, the envelopment will adapt to showing a simulated isometric view of the front and back faces if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
+    /// The envelopment you construct this way will simulate isometric perspective from the front when its depth is zero. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(@_EnvelopmentBuilder subviews: @escaping () -> _EnvelopmentFaces) {
         self.subviews = { _ in subviews() }
         self.intrinsicAdaptation = .showsSingleFace(.back)
@@ -175,7 +175,7 @@ public struct Envelopment: View {
     @Environment(\.envelopmentZeroDepthAdaptation) var adaptation
     
     public var body: some View {
-        _GeometryReader { geometry in
+        _Shims.GeometryReader { geometry in
             _Envelopment3DIfAvailable(subviews: subviews, geometry: geometry, adaptation: adaptation ?? intrinsicAdaptation)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -208,7 +208,7 @@ private func area(_ color: some ShapeStyle) -> some View {
         .foregroundStyle(.mint)
         .border(.yellow)
     
-    _GeometryReader { geometry in
+    _Shims.GeometryReader { geometry in
         VStack {
 #if os(visionOS)
             Button("Toggle Depth") {

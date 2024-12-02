@@ -115,7 +115,7 @@ public struct Concentric: View {
         self.content = .shimmed(ConcentricViews(views: subviews()))
     }
     
-    func placing(_ view: some View, id: AnyHashable, in geometry: _GeometryProxy) -> some View {
+    func placing(_ view: some View, id: AnyHashable, in geometry: _Shims.GeometryProxy) -> some View {
         let size = geometry.size
         
         return view
@@ -133,7 +133,7 @@ public struct Concentric: View {
     public var body: some View {
         var keys: Set<AnyHashable> = []
         
-        _GeometryReader { geometry in
+        _Shims.GeometryReader { geometry in
             switch content {
             case .shimmed(let concentricViews):
                 {

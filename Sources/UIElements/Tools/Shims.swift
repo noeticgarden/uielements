@@ -4,12 +4,12 @@ import SwiftUI
 import Spatial
 
 extension View {
-    var shims: _Shims<Self> {
+    var shims: _ViewShims<Self> {
         .init(content: self)
     }
 }
 
-struct _Shims<Content: View> {
+struct _ViewShims<Content: View> {
     let content: Content
     
     func rotation3DEffect(_ angle: Angle, axis: (x: CGFloat, y: CGFloat, z: CGFloat), anchor: UnitPoint = .center, anchorZ: CGFloat = 0, perspective: CGFloat = 1) -> some View {
@@ -39,8 +39,14 @@ extension CGRect {
 }
 
 extension CGPoint {
-    init(projecting point: Point3D) {
+    init(truncating point: Point3D) {
         self.init(x: point.x, y: point.y)
+    }
+}
+
+extension CGRect {
+    init(truncating rect: Rect3D) {
+        self.init(x: rect.origin.x, y: rect.origin.y, width: rect.size.width, height: rect.size.height)
     }
 }
 

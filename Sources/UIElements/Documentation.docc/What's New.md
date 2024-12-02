@@ -8,7 +8,27 @@ This document tracks changes to each published version of UIElements.
 
 > Important: Until version 1.0, the API in this package is not stable and may change release to release. When it does, it will be noted below.
 
-### UIElements 0.2.2
+### UIElements 0.3
+
+This version of UIElements introduces two advances:
+
+- The Marks module provides a way to mark elements in a bounds region through its `MarksView` class. This initial release provides the ability to mark points, but the intent is to introduce other elements such as rectangles, vectors and 3D regions.
+
+The Marks module has its own documentation.
+
+- The ``Vector`` type allows you to work with vectors component by component. This allows you to scale sizes, add offsets, and convert `CGPoint`s into `Point3D`s without duplicating code:
+
+```swift
+let cgPoint = CGPoint(…)
+let point = Point3D(componentsOf: cgPoint, missing: 0)
+let offset = Size3D(…)
+
+let pointWithOffset = Point3D {
+    point[$0] + offset[matching: $0]
+}
+```
+
+### UIElements 0.2.3
 
 In this version:
 

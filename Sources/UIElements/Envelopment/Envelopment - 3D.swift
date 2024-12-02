@@ -4,10 +4,10 @@ import SwiftUI
 
 struct _Envelopment3D: View {
     let subviews: (Envelopment.State) -> _EnvelopmentFaces
-    let geometry: _GeometryProxy
+    let geometry: _Shims.GeometryProxy
     let adaptation: Envelopment.Adaptation
     
-    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _GeometryProxy, adaptation: Envelopment.Adaptation) {
+    init(@_EnvelopmentBuilder subviews: @escaping (Envelopment.State) -> _EnvelopmentFaces, geometry: _Shims.GeometryProxy, adaptation: Envelopment.Adaptation) {
         self.subviews = subviews
         self.geometry = geometry
         self.adaptation = adaptation
@@ -81,7 +81,7 @@ struct _Envelopment3D: View {
         .frame(maxWidth: size.width, maxHeight: size.height)
         .frame(depth: size.depth)
         .position(
-            .init(projecting: geometry.frame(in: .local).center)
+            .init(truncating: geometry.frame(in: .local).center)
         )
         .offset(
             z: -size.depth / 2
@@ -103,7 +103,7 @@ private func area(_ color: some ShapeStyle) -> some View {
         .foregroundStyle(.mint)
         .border(.yellow)
 
-    _GeometryReader { geometry in
+    _Shims.GeometryReader { geometry in
         _Envelopment3D(
             subviews: { state in
                 ZStack {

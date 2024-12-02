@@ -4,7 +4,9 @@ _A work of Noetic Garden — by [millenomi](https://millenomi.name)._
 
 This package is meant to contain SwiftUI and RealityKit containers for work on 2D and 3D UIs — things like 3D-aware containers, debug visualizers, or RealityKit integrations of those elements.
 
-Currently, it hosts two SwiftUI containers — the `Concentric` container, which places all views at the center of its bounds, including depth; and the `Envelopment` container — a SwiftUI container that lets you place views on each side of its bounds. It works in 3D in visionOS, and in 2D on all other Apple OSes.
+Currently, it hosts two modules. The UIElements module vends SwiftUI containers — the `Concentric` container, which places all views at the center of its bounds, including depth; and the `Envelopment` container — a SwiftUI container that lets you place views on each side of its bounds. It works in 3D in visionOS, and in 2D on all other Apple OSes. It also provides conveniences for working with vector values. The Marks module vends `MarksView` — a way to mark geometric elements in space, as a building block to debug visualization UIs.
+
+Here's the `Envelopment` container in action: 
 
 ![A screenshot of an envelopment on visionOS.](Sources/UIElements/Documentation.docc/Resources/placements-3d.jpg)
 

@@ -20,13 +20,13 @@ extension Envelopment {
     /// ```swift
     /// Envelopment { _ in
     ///     Rectangle()
-    ///         .foregroundStyle(.red.opacity(0.15)
+    ///         .foregroundStyle(.red.opacity(0.15))
     /// }
     /// ```
     ///
     /// Return `EmptyView()` to skip placing a view in the specified placement.
     ///
-    /// By default, if set to have no depth, the envelopment will adapt to showing only the back face if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
+    /// The envelopment you construct this way will adapt to showing only the back face when its depth is zero. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(preferring orientation: Orientation = .inward, @ViewBuilder eachSide faceContent: @escaping (Envelopment.Placement) -> some View) {
         self.init {
             for placement in Placement.allCases(preferring: orientation) {
@@ -46,13 +46,13 @@ extension Envelopment {
     /// ```swift
     /// Envelopment(placements: .vertical) { _ in
     ///     Rectangle()
-    ///         .foregroundStyle(.red.opacity(0.15)
+    ///         .foregroundStyle(.red.opacity(0.15))
     /// }
     /// ```
     ///
     /// Return `EmptyView()` to dynamically skip placing a view in the specified placement.
     ///
-    /// By default, if set to have no depth, the envelopment will adapt to showing only the back face if constructed using this constructor. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
+    /// The envelopment you construct this way will adapt to showing only the back face when its depth is zero. Use the ``SwiftUICore/View/envelopmentZeroDepthAdaptation(_:)`` modifier to change this behavior.
     public init(placements: Placements, preferring orientation: Orientation? = .inward,  @ViewBuilder eachSide faceContent: @escaping (Envelopment.Placement) -> some View) {
         var allPlacements = placements
         if let orientation {

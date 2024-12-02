@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		156F51422CF807F80045CCB4 /* UIElements in Frameworks */ = {isa = PBXBuildFile; productRef = 156F51412CF807F80045CCB4 /* UIElements */; };
+		15ABAA3F2CFA5D1B00592191 /* Marks in Frameworks */ = {isa = PBXBuildFile; productRef = 15ABAA3E2CFA5D1B00592191 /* Marks */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				156F51422CF807F80045CCB4 /* UIElements in Frameworks */,
+				15ABAA3F2CFA5D1B00592191 /* Marks in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -81,6 +83,7 @@
 			name = Examples;
 			packageProductDependencies = (
 				156F51412CF807F80045CCB4 /* UIElements */,
+				15ABAA3E2CFA5D1B00592191 /* Marks */,
 			);
 			productName = Examples;
 			productReference = 156F51032CF7F7070045CCB4 /* Examples.app */;
@@ -360,6 +363,10 @@
 		156F51412CF807F80045CCB4 /* UIElements */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = UIElements;
+		};
+		15ABAA3E2CFA5D1B00592191 /* Marks */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Marks;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -15,14 +15,19 @@ let package = Package(
         .library(
             name: "UIElements",
             targets: ["UIElements"]),
+        .library(
+            name: "Marks",
+            targets: ["Marks"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.4.3"),
     ],
     targets: [
         .target(
-            name: "UIElements"
-        ),
+            name: "UIElements"),
+        .target(
+            name: "Marks",
+            dependencies: ["UIElements"]),
     ],
     swiftLanguageVersions: [.v5, .version("6")]
 )
